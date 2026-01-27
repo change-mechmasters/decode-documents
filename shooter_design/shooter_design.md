@@ -45,67 +45,36 @@ However, notice that the function is undefined when the denominator is less than
 Note also that the shooter mechanism is limited to some maximum velocity, $u_\text{max}$. 
 
 ## Translating initial velocity into RPM
-Now, we have the desired value of $u$, which represents the initial velocity of the artifact, but how does this translate into the flywheel's angular velocity, $\omega$? Note that the FTC SDK takes in angular velocity, not RPM.
+Now, we have the desired value of $u$, which represents the initial velocity of the artifact, but how does this translate into the flywheel's angular velocity? Note that the FTC SDK takes in angular velocity, not RPM: `DcMotorEx.setVelocity(angularVelocity, AngleUnit.RADIANS);`
 
-First, let $v$ represent the instantaneous velocity of the motor, then, given the flywheel's radius $r$:
+First, note that the two quantities are proportional:
 
-$$\omega = \frac{v}{r}$$
-
-Then, consider how a flywheel fundamentally works. The rotating wheel accelerates an artifact, through the transfer of kinetic energies. The masses remains constant, so the only thing that changes is the velocities. The change in kinetic energy in each would be equal in magnitude but opposite in direction, since one gains and the other loses energy. However, some energy is lost, and only a portion is transferred, so the two quantities are actually only proportional:
-
-$$-\frac{1}{2}m_\text{wheel}\Delta v^2 \propto \frac{1}{2}m_\text{artifact}\Delta u^2$$
-
-Simplifying a little:
-
-$$\implies m_\text{wheel}v^2 \propto m_\text{artifact}u^2$$
+$$\omega \propto u$$
 
 Hence:
 
-$$km_\text{wheel}v^2 = m_\text{artifact}u^2$$
+$$\therefore w = ku$$
 
-Making $v$ the subject:
-
-$$\begin{align}
-& \implies kv^2 = \frac{m_\text{artifact}}{m_\text{wheel}}u^2 \\
-& \implies \sqrt{k}v = \sqrt{\frac{m_\text{artifact}}{m_\text{wheel}}} u
-\end{align}$$
-
-This $k$ is a proportionality constant, denoting the *energy transfer proportion*. This constant could, theoretically, be found mathematically; but it is much easier to simply find it by experimentation, by tuning. All in all, we have the following equation for angular velocity:
-
-$$\omega = \sqrt{\frac{m_\text{artifact}}{m_\text{wheel}}} \frac{u}{\sqrt{k}r}$$
-
-Further, from the above equation, we can make some conclusions about the design of the flywheel itself. First, an increase in either the flywheel's radius or an increase in its mass would result in a higher maximum velocity, $u_\text{max}$. (See below.) Second, an increase in the flywheel's mass would result in a slower rate of acceleration & deceleration, which implies a higher throughput at the cost of a longer initial acceleration period (since more time is needed to accumulate the required kinetic energy for the desired angular velocity).
-
-Alternatively, if the flywheel's mass cannot be calculated for any reason, the following equation can be used instead, where $k$ would also encompass the effect of the masses. However, this approach may result in a less accurate shooter.
-
-$$\omega = \frac{u}{\sqrt{k}r}$$
+This $k$ is a proportionality constant denoting the *conversion rate* from $u$ to $\omega$. This constant could be found mathematically, but that is unnecessary and error-prone, and hence a huge waste of effort, because we can simply find it experimentally, tuning for it.
 
 ## Tuning procedure
-The tuning procedure for the shooter mechanism is then quite simple. One only has to measure & define the needed constants. 
+First: Measure the bot height and target height, where $\Delta h := h_\text{target} - h_\text{bot}$. The DECODE competition manual (pp. 64-65) states that $h_\text{target} = 98.45\rm{cm}$. The measure for $h_\text{bot}$ should not be the entire height of the robot, but only from the ground up to the point where artifacts are launched.
 
-First: Measure the bot height and target height, where $\Delta h := h_\text{target} - h_\text{bot}$. The DECODE competition manual (pp. 64-65) states that $h_\text{target} = 98.45\rm{cm}$. The latter value, however, will have to be measured. The measure should not be the entire height of the robot, but only from the ground up to the point where artifacts are launched.
+Second: The angle $\theta$ must be chosen and defined. The choice of angle is not too important right now; put anything to allow for tuning the rest of the mechanism. A better choice of $\theta$ can be found later. Note that $\theta$ must be measured from the horizontal. This can be done by putting a straight object (like a pencil or ruler) on the shooter ramp, like an exiting artifact, then measuring the object's angle with a protractor. 
 
-Second: Measure the flywheel's radius, $r$.
-
-Third (Optional):  Measure the flywheel's mass, $m_\text{wheel}$. The artifact's mass, $m_\text{artifact}$, according to Andymark, is 0.165lbs ($\approx$ 0.075kg). If this step is not possible, then the alternative equation may be used instead. 
-
-Fourth: The angle $\theta$ must be chosen and defined. The choice of angle is not too important right now; put anything to allow for tuning the rest of the mechanism. A better choice of $\theta$ can be found later.
-
-Fifth: Tune for the energy transfer proportion, $k$. First, set $k = 1$. Then, try to shoot a number of artifacts some distance, $s_\text{desired}$; then, measure (a mean of) the actual distance that the artifacts travel, $s_\text{actual}$. Repeat this for a number of distance. For each pair, calculate:
+Third: Tune for the conversion rate, $k$. First, set $k = 1$. Then, try to shoot a number of artifacts some distance, $s_\text{desired}$; then, measure the actual distance that the artifacts travel, $s_\text{actual}$. It'll likely be better to take a mean for $s_\text{actual}$ to reduce random error. Repeat this for a number of distance. For each pair, calculate:
 
 $$\begin{align}
  u_\text{desired} & = u(s_\text{desired})\big|_{h_\text{target} = 0} \\
  u_\text{actual} & = u(s_\text{actual})\big|_{h_\text{target} = 0} \\
 \end{align}$$
 
+Plot a graph of $u_\text{actual}$ against $u_\text{desired}$, then draw a line of best fit. The gradient, $G$, of this graph will be $k$:
+$$k = G = \frac{u_\text{desired}}{u_\text{actual}}$$
 
-Plot a graph of $u_\text{actual}$ against $u_\text{desired}$. ($u_\text{actual} = \frac{1}{\sqrt{k}}u_\text{desired}$, by the angular velocity equation, ignoring masses.) Draw a line of best fit, calculating the gradient, $G$. Then:
+Finally: The maximum velocity, $u_\text{max}$. This can be easily calculated with either the motor's maximum angular velocity, $w_\text{max}$, which can be obtained from `DcMotorEx.getVelocity(AngleUnit.RADIANS)`; or with the maximum frequency, $f_\text{max}$, which is just the RPM divided by 60. 
 
-$$k = \frac{m_\text{artifact}}{m_\text{wheel}}\frac{1}{G^2}$$
-
-Finally: The maximum velocity, $u_\text{max}$. This can be easily calculated given the motor's maximum RPS/frequency, $f_\text{max}$: (For reference, given RPM instead, $f = \frac{\rm{RPM}}{60}$.) 
-
-$$u_\text{max} = \sqrt{\frac{m_\text{wheel}}{m_\text{artifact}}} 2\pi r\sqrt{k}f_\text{max}$$
+$$u_\text{max} = \frac{\omega_\text{max}}{k} = \frac{2\pi f_\text{max}}{k}$$
 
 <div style="page-break-after: always;"></div>
 
