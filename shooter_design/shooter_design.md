@@ -1,4 +1,4 @@
-# Shooter design: Change-mechmasters (FTC18494-FTC25102)
+# Shooter design: Change-mechmasters (FTC18498-FTC25102)
 Initially, we considered using a (stationary) flywheel-based shooter mechanism as our scoring mechanism. To assess whether such a design would be successful, and to design it such that it would be effective & accurate, we had to consider the mathematical & physics principles behind it.
 
 ## Defining the problem
