@@ -12,18 +12,18 @@ Since we want the angle to the horizontal, let $P$ be the point with coordinates
 
 Hence, we can use trigonometry to find $\theta$:
 
-$$\cos\theta = \frac{\text{Adj}}{\text{Hyp}}$$
+$$\tan\theta = \frac{\text{Opp}}{\text{Adj}}$$
 
-Then, calculate the length of the adjacent, $\text{Adj}$, and the hypotenuse, $\text{Hyp}$:
+Then, calculate the length of the opposite, $\text{Opp}$, and the adjacent, $\text{Adj}$:
 
 $$\begin{align}
+& \text{Opp} = |G_y - B_y| \\
 & \text{Adj} = |G_x - B_x| \\
-& \text{Hyp} = \sqrt{(G_x - B_x)^2 + (G_y - B_y)^2} \\
 \end{align}$$
 
 Hence,
 
-$$\theta = \arccos\left(\frac{|G_x - B_x|}{\sqrt{(G_x - B_x)^2 + (G_y - B_y)^2}}\right)$$
+$$\theta = \arctan\left(\frac{|G_y - B_y|}{|G_x - B_x|}\right) $$
 
 However, when $B_x > G_x$, then the heading must be corrected as $180^\circ - \theta$, since the triangle will be mirrored. 
 

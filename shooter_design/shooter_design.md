@@ -72,6 +72,8 @@ $$\begin{align}
 Plot a graph of $u_\text{actual}$ against $u_\text{desired}$, then draw a line of best fit. The gradient, $G$, of this graph will be $k$:
 $$k = G = \frac{u_\text{desired}}{u_\text{actual}}$$
 
+![](fig_3.png)
+
 Finally: The maximum velocity, $u_\text{max}$. This can be easily calculated with either the motor's maximum angular velocity, $w_\text{max}$, which can be obtained from `DcMotorEx.getVelocity(AngleUnit.RADIANS)`; or with the maximum frequency, $f_\text{max}$, which is just the RPM divided by 60. 
 
 $$u_\text{max} = \frac{\omega_\text{max}}{k} = \frac{2\pi f_\text{max}}{k}$$
